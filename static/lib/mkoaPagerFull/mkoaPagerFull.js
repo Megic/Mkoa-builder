@@ -1,7 +1,7 @@
 /**
  * Created by Administrator on 2015/9/16 0016.
  */
-define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pager.css"], function (avalon,$a) {
+define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pagerFull.css"], function (avalon,$a) {
     function heredoc(fn) {
         return fn.toString()
             .replace(/^[^\/]+\/\*!?\s?/, '')
@@ -11,9 +11,13 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pager.css"], function (avalon,$
     };
     avalon.component("mkoa:pager", {
         url:"",//数据获取地址
+        searchurl:"",//搜索功能地址
         $list: "",
+        $top:"",
         listData:[],
-        perPages: 10, //@config {Number} 每页包含多少条目
+        searchKey:'id',
+        searchValue:'',
+        perPages: 2, //@config {Number} 每页包含多少条目
         showPages: 10, //@config {Number} 中间部分一共要显示多少页(如果两边出现省略号,即它们之间的页数)
         currentPage: 0, //@config {Number} 当前选中的页面 (按照人们日常习惯,是从1开始)，它会被高亮
         totalItems: 0, //@config {Number} 总条目数
@@ -27,11 +31,14 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pager.css"], function (avalon,$
         lastPage: 0, //@config {Number} 当前可显示的最大页码，不能大于totalPages
         showFirstOmit: false,
         showLastOmit: false,
+        searchOpen:false,//搜索开关
+        search:_interface,
         changePage:_interface,
+        closeSearch:_interface,
         //插件模板
         $template: heredoc(function (vm) {
             /*
-             {{$list|html}}
+             {{$top|html}}{{$list|html}}
              <p class="mkoa-pager-empty" ms-if="!totalItems">{{empty}}</p>
              <div class="mkoa-pager" ms-if="totalItems">
              <span  ms-click="changePage(currentPage-1)" class="mkoa-pager-button" ms-class="mkoa-pager-lock:currentPage==1">{{prevText}}</span>
@@ -45,7 +52,29 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pager.css"], function (avalon,$
              */
         }),
         $init:function(vm){
-
+            //搜索功能
+            vm.search=function(){
+                if(vm.searchurl&&vm.searchValue) {
+                    if (!vm.searchOpen)vm.searchOpen = true;
+                    if (vm.currentPage != 1) {
+                        vm.currentPage = 1;
+                    } else {
+                        vm.$fire("currentPage", "1");
+                    }
+                }else{
+                    console.log('搜索参数不正确')
+                }
+            };
+            //关闭搜索
+            vm.closeSearch=function(){
+                vm.searchOpen=false;
+                vm.searchValue='';
+                if(vm.currentPage!=1){
+                    vm.currentPage=1;
+                }else{
+                    vm.$fire("currentPage", "1");
+                }
+            };
             //修改当前页面
             vm.changePage=function(index){
                 if(index>0&&index<=vm.totalPages)vm.currentPage=index;
@@ -55,19 +84,33 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pager.css"], function (avalon,$
             });
             //监控页码变动
             vm.$watch("currentPage", function (){
-                vm.pages=getPages(vm);
-                //ajax获取数据
                 var option={};
                 option['currentPage']=vm.currentPage;//当前页码
                 option['perPages']=vm.perPages;//每页页数
                 option['t']=new Date().getTime();
-                $a.getJSON(vm.url,option,function(data){//获取列表数据
-                    if(!data.error){
-                        vm.totalItems=data.data.count;
-                        vm.listData=data.data.rows;
-                        //console.log(vm.listData);
-                    }
-                });
+                vm.pages=getPages(vm);
+                if(!vm.searchOpen){
+                    //ajax获取数据
+                    $a.getJSON(vm.url,option,function(data){//获取列表数据
+                        if(!data.error){
+                            vm.totalItems=data.data.count;
+                            vm.listData=data.data.rows;
+                        }
+                    });
+                }else{//搜索事件
+                    option['searchKey']=vm.searchKey;//搜索字段
+                    option['searchValue']=vm.searchValue;//搜索内容
+                    $a.getJSON(vm.searchurl,option,function(data){//获取搜索列表数据
+                        if(!data.error){
+                            vm.totalItems=data.data.count;
+                            vm.listData=data.data.rows;
+                        }else{
+                            vm.totalItems=0;
+                            vm.listData=[];
+                        }
+                    });
+                }
+
             });
             vm.currentPage=1;
 
