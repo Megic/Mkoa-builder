@@ -38,11 +38,13 @@ module.exports = function($this,$M){
           //生成字段
             for(var i=0; i<len; i++){
                 if(i)fieldsARR+=',';
+                var defaultSTR=`
+                        defaultValue:'${$M['POST']['fields'][i].defaultValue}',`;
+                if($M['POST']['fields'][i].defaultValue=='')defaultSTR='';
                 fieldsARR+=`
                 ${$M['POST']['fields'][i].name}: {
                         type: DataTypes.${$M['POST']['fields'][i].type},
-                        allowNull:${$M['POST']['fields'][i].allowNull},
-                        defaultValue:'${$M['POST']['fields'][i].defaultValue}',
+                        allowNull:${$M['POST']['fields'][i].allowNull},${defaultSTR}
                         unique:${$M['POST']['fields'][i].unique},
                         comment: '${$M['POST']['fields'][i].comment}'
                       }`;
