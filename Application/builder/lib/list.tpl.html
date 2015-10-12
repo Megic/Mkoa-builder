@@ -1,5 +1,5 @@
 <div class="f-cb f-mb10"><h3 class="list-title">{{%name%}}数据</h3> <span class="f-fr"><a href="#!/?{{%mroot%}}/{{%name%}}/addItem" class="f-btn f-btn-success">增加数据</a></span></div>
-<div class="mkoa-box"  ms-controller="{{%name%}}-list">
+<div class="mkoa-box f-p10"  ms-controller="{{%name%}}-list">
     <mkoa:pager  ms-attr-url="app.$host+'{{%mroot%}}/{{%name%}}/findAll'" ms-attr-searchurl="app.$host+'{{%mroot%}}/{{%name%}}/search'" >
         <div slot="$top" id="search">
             <select ms-duplex="searchKey" class="f-fl" >
