@@ -29,7 +29,7 @@
                     <button type="button" ms-click="chooseType('BIGINT(20)')" class="am-btn am-btn-primary am-btn-xs">BIGINT(20)</button>
                     <button type="button" ms-click="chooseType('FLOAT(20)')" class="am-btn am-btn-primary am-btn-xs">FLOAT(20)</button>
                     <button type="button" ms-click="chooseType('FLOAT(11,12)')" class="am-btn am-btn-primary am-btn-xs">FLOAT(11,12)</button>
-                    <button type="button" ms-click="chooseType('JSON')" class="am-btn am-btn-primary am-btn-xs">JSON(pgsql)</button>
+                    <button type="button" ms-click="chooseType('JSON')" class="am-btn am-btn-primary am-btn-xs">JSON</button>
                     <button type="button" ms-click="chooseType('NOW')" class="am-btn am-btn-primary am-btn-xs">NOW</button>
                     <button type="button" ms-click="chooseType('DATE')" class="am-btn am-btn-primary am-btn-xs">DATE</button>
                     <button type="button" ms-click="chooseType('BOOLEAN')" class="am-btn am-btn-primary am-btn-xs">BOOLEAN</button>
@@ -58,7 +58,7 @@
             <label class="am-u-sm-2 am-form-label">默认值</label>
             <div class="am-u-sm-7">
                 <input type="text"  ms-duplex="fields[eindex].defaultValue">
-            </div> <div class="am-u-sm-3 am-text-xs">注意：Mysql text等类型不允许有默认值，请置空</div>
+            </div> <div class="am-u-sm-3 am-text-xs">注意：Mysql text、json等类型不允许有默认值，请置空</div>
         </div>
         <div class="am-form-group">
             <label class="am-u-sm-2 am-form-label">验证规则</label>
