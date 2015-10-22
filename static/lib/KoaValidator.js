@@ -554,18 +554,22 @@
       } else if (Utils.typeof(ruleValue) === 'string') {
         rules = parse(ruleValue);
       }
-
-      for (var i = 0; i < rules.length; i++) {
-        var key   = rules[i].key,
-            value = rules[i].value;
-
-        if(!run(object, this.requires, rules[i], field) ||
-            (field in object && !run(object, this.validators, rules[i], object[field]))) {
-          rejects.push({
-            //object: object,
-            field: field, rule: key });
-          if(!this.config.resumeOnFailed)
-            return false;
+      if (object[field].replace(/(^\s*)|(\s*$)/g, "").length ==0)//把所有空格转换成一个空格
+      {
+        object[field]='';
+      }
+      if(object[field]!=''||(_rules[field].rule.indexOf("required") >= 0)){//存在内容或者required才验证
+        for (var i = 0; i < rules.length; i++) {
+          var key   = rules[i].key,
+              value = rules[i].value;
+          if(!run(object, this.requires, rules[i], field) ||
+              (field in object && !run(object, this.validators, rules[i], object[field]))) {
+            rejects.push({
+              //object: object,
+              field: field, rule: key });
+            if(!this.config.resumeOnFailed)
+              return false;
+          }
         }
       }
     }

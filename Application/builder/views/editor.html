@@ -85,7 +85,7 @@
     var editor=avalon.define({
         $id:'editor',
         chooseType:function(str){
-            avalon.vmodels['app'].fields[avalon.vmodels['app'].eindex].type=str;
+            document.getElementById('type').value=str;
         },
         add:function(){
 
