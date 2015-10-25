@@ -9,6 +9,15 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pagerFull.css"], function (aval
     }
     var _interface = function () {
     };
+    var getUrl=function(url){
+        var $HOST='http://'+window.location.host;
+        if((url.indexOf('http://')==-1)&&(url.indexOf('../')==-1)&&(url.indexOf('./')==-1)){
+            if(url.indexOf('/')!=0)$HOST=$HOST+'/';
+            return $HOST+url;
+        }else{
+            return url;
+        }
+    };
     avalon.component("mkoa:pager", {
         url:"",//数据获取地址
         searchurl:"",//搜索功能地址
@@ -17,7 +26,7 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pagerFull.css"], function (aval
         listData:[],
         searchKey:'id',
         searchValue:'',
-        perPages: 2, //@config {Number} 每页包含多少条目
+        perPages: 20, //@config {Number} 每页包含多少条目
         showPages: 10, //@config {Number} 中间部分一共要显示多少页(如果两边出现省略号,即它们之间的页数)
         currentPage: 0, //@config {Number} 当前选中的页面 (按照人们日常习惯,是从1开始)，它会被高亮
         totalItems: 0, //@config {Number} 总条目数
@@ -52,6 +61,9 @@ define(["avalon","mkoaAjax/mkoaAjax","css!./mkoa.pagerFull.css"], function (aval
              */
         }),
         $init:function(vm){
+            //修正url
+            vm.url=getUrl(vm.url);
+            vm.searchurl=getUrl(vm.searchurl);
             //搜索功能
             vm.search=function(){
                 if(vm.searchurl&&vm.searchValue) {

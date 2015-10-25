@@ -26,13 +26,13 @@
 <script>
     (function(){
         //验证规则
-        var rules =  {{%rules%}};;
+        var rules =  {{%rules%}};
 
         var id=avalon.vmodels['router'].GET['id'];//是否存在id
         var form={{%vmSTR%}};//数据对象
         require(["mkoaAjax/mkoaAjax","KoaValidator"],function($a,$v){
         if(id){//更新数据
-            $a.getJSON(app.$host +'{{%mroot%}}/{{%name%}}/findOne',{id:id,t:new Date().getTime()},function(data){//获取列表数据
+            $a.getJSON(app.$host +'{{%controllerPath%}}findOne',{id:id,t:new Date().getTime()},function(data){//获取列表数据
                 if(!data.error){
                     pageLoad(data.data);
                 }
@@ -49,7 +49,7 @@
                     var check = $v.validate(vm.form.$model, rules);//验证数据
                     if (check.status) {/*通过验证*/
                     vm.isLock=1;
-                    $a.post(app.$host +'{{%mroot%}}/{{%name%}}/add?'+new Date().getTime(),vm.form.$model,function(data){//获取列表数据
+                    $a.post(app.$host +'{{%controllerPath%}}add?'+new Date().getTime(),vm.form.$model,function(data){//获取列表数据
                         if(!data.error){
                             alert('提交成功!');
                         }else{

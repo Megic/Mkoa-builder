@@ -136,6 +136,12 @@
                             <input type="text" ms-duplex="root" >
                         </div>
                     </div>
+                    <div class="am-form-group">
+                        <label class="am-u-sm-2 am-form-label">控制器存放目录</label>
+                        <div class="am-u-sm-10">
+                            <input type="text" ms-duplex="filepath" >
+                        </div>
+                    </div>
                     <div class="am-form-group" >
                         <label class="am-u-sm-2 am-form-label">是否生成案例视图</label>
                         <div class="am-u-sm-7">
@@ -238,6 +244,7 @@ var lock=false;
         paranoid:<%-paranoid%>,
         fields:<%-JSON.stringify(fields)%>,
         root:'<%-root%>',
+         filepath:"<%-filepath%>",
         eindex:0,
         editor:function(index){
             app.eindex=index;
@@ -270,6 +277,7 @@ var lock=false;
                     timestamps: app.timestamps,
                     paranoid: app.paranoid,
                     root: app.root,
+                    filepath:app.filepath,
                     fields: JSON.stringify(app.fields)
                 };
                 $.post("<%=$HOST%>builder/main/buildModel",//生成模型

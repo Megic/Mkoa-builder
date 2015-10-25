@@ -14,6 +14,7 @@ module.exports = function($this,$M){
     };
     main['eModel']=function *(){
        var data=require($M.modulePath+'data/module/'+$M.GET['file']);
+        data['filepath']=data['filepath']?data['filepath']:'';
         yield $this.display(data);
     };
     main['list']=function *(){//模型列表
@@ -67,6 +68,7 @@ module.exports = function($this,$M){
             if (fs.existsSync($M.modulePath+'data/module') || (yield fscp.mkdirp($M.modulePath+'data/module', '0755'))) {//判定文件夹是否存在
             fs.writeFileSync($M.modulePath+'data/module/'+$M['POST'].modelName+'.js','module.exports='+JSON.stringify($M['POST'])+';');
             }
+
             yield $M.D($M['POST'].root+':'+$M['POST'].modelName).sync({force: true});//写入数据表
             //编辑安装锁
             var filePath=$M.ROOT+'/install.json';
@@ -93,6 +95,7 @@ module.exports = function($this,$M){
         var rules = {
             modelName:{rule:'required|string',error:'模型名称有误'}
         };
+        var pathPrefix=$M['POST']['filepath']?$M['POST']['filepath']+'/':'';
         var r=$M['F'].V.validate($M['POST'], rules);
         if(r.status==1&&$M['POST']['fields'].length>0){
             var fieldsARR='{';
@@ -107,7 +110,7 @@ module.exports = function($this,$M){
             var res=fs.readFileSync($M.modulePath+'lib/controller.tpl','utf-8');
             res=res.replace(/{{%name%}}/g,$M['POST'].modelName);
             res=res.replace('{{%rules%}}',fieldsARR);
-            var modelPath=$M.ROOT + '/' + $M.C.application + '/' + $M['POST'].root + '/controller/';
+            var modelPath=$M.ROOT + '/' + $M.C.application + '/' + $M['POST'].root + '/controller/'+pathPrefix;
             if (fs.existsSync(modelPath) || (yield fscp.mkdirp(modelPath, '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync(modelPath+$M['POST'].modelName+'.js',res);
             }
@@ -120,6 +123,7 @@ module.exports = function($this,$M){
     };
     //生成常用视图
     main['buildViews']=function *(){
+        var pathPrefix=$M['POST']['filepath']?$M['POST']['filepath']+'/':'';
         $M['POST']['fields']=JSON.parse($M['POST']['fields']);
         var rules = {
             modelName:{rule:'required|string',error:'模型名称有误'}
@@ -141,7 +145,7 @@ module.exports = function($this,$M){
             }
             if(menuData[$M['POST'].root+'-lock'].indexOf($M['POST'].modelName)<0){
                 menuData[$M['POST'].root].push(
-                    {name:$M['POST'].modelName,url:"#!/?"+$M['POST'].root+"/"+$M['POST'].modelName+"/list"}
+                    {name:$M['POST'].modelName,url:"#!/?"+$M['POST'].root+"/"+pathPrefix+$M['POST'].modelName+"/list"}
                 );
                 menuData[$M['POST'].root+'-lock'].push($M['POST'].modelName);
             }
@@ -155,7 +159,7 @@ module.exports = function($this,$M){
             if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync(vPath+'admin.html',index);
             }
-
+             vPath=vPath+pathPrefix;
          //拼接页面代码
             var len= $M['POST']['fields'].length;
             //生成字段
@@ -182,12 +186,14 @@ module.exports = function($this,$M){
             fieldsARR+='}';
 
             //生成list文件
+            var controllerPath=$M['POST'].root+'/'+pathPrefix+$M['POST'].modelName+'/';
             var list=fs.readFileSync($M.modulePath+'lib/list.tpl.html','utf-8');//读取模板
             list=list.replace('{{%searchSTR%}}',searchSTR);
             list=list.replace('{{%titleSTR%}}',titleSTR);
             list=list.replace('{{%listSTR%}}',listSTR);
             list=list.replace(/{{%name%}}/g,$M['POST'].modelName);
             list=list.replace(/{{%mroot%}}/g,$M['POST'].root);
+            list=list.replace(/{{%controllerPath%}}/g,controllerPath);
             vPath=vPath+$M['POST'].modelName+'/';
             if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync(vPath+'list.html',list);
@@ -200,6 +206,7 @@ module.exports = function($this,$M){
             addItem=addItem.replace('{{%vmSTR%}}',JSON.stringify(vmSTR));
             addItem=addItem.replace(/{{%name%}}/g,$M['POST'].modelName);
             addItem=addItem.replace(/{{%mroot%}}/g,$M['POST'].root);
+            addItem=addItem.replace(/{{%controllerPath%}}/g,controllerPath);
             fs.writeFileSync(vPath+'addItem.html',addItem);
 
 

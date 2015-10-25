@@ -80,7 +80,8 @@ html{_height:auto;_padding:50px 0 0px;}
     color: #444;}
 /*************************************************数据列表页样式************************/
 #search{
-    padding: 10px;}
+    padding: 10px;
+    padding-left: 0;}
 #search input,#search select{width: auto;}
 .mkoa-box{background-color: #fff;}
 .list-title{ margin: 0;padding: 0;padding-left: 10px;float: left;}

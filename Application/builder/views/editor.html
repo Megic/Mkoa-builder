@@ -17,7 +17,7 @@
         <div class="am-form-group">
             <label class="am-u-sm-2 am-form-label">字段类型</label>
             <div class="am-u-sm-7">
-                <input type="text" ms-duplex="fields[eindex].type" >
+                <input type="text" ms-duplex="fields[eindex].type" id="type" >
                 <div class="am-text-left am-padding-top-sm">
                     <button type="button" ms-click="chooseType('STRING(255)')" class="am-btn am-btn-primary am-btn-xs">STRING(255)</button>
                     <button type="button" ms-click="chooseType('CHAR(30)')" class="am-btn am-btn-primary am-btn-xs">CHAR(30)</button>
@@ -58,7 +58,7 @@
             <label class="am-u-sm-2 am-form-label">默认值</label>
             <div class="am-u-sm-7">
                 <input type="text"  ms-duplex="fields[eindex].defaultValue">
-            </div> <div class="am-u-sm-3 am-text-xs">注意：Mysql text、json等类型不允许有默认值，请置空</div>
+            </div> <div class="am-u-sm-3 am-text-xs">注意：Mysql text，json等类型不允许有默认值，请置空</div>
         </div>
         <div class="am-form-group">
             <label class="am-u-sm-2 am-form-label">验证规则</label>
@@ -86,9 +86,9 @@
         $id:'editor',
         chooseType:function(str){
             document.getElementById('type').value=str;
+            //avalon.vmodels['app'].fields[avalon.vmodels['app'].eindex].type=str;
         },
         add:function(){
-
             $('#doc-modal-2').modal('close');
         }
     });
