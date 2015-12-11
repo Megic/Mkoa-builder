@@ -11,7 +11,9 @@ module.exports = function($this,$M){
     };
     main['_after']=function *(){//后行的公共函数
         //console.log('公共头部');
+
     };
+
     main['eModel']=function *(){
        var data=require($M.modulePath+'data/module/'+$M.GET['file']);
         data['filepath']=data['filepath']?data['filepath']:'';
@@ -170,7 +172,7 @@ module.exports = function($this,$M){
                 listSTR+=`<td>{{el.${$M['POST']['fields'][i].name}}}</td>`;
                 searchSTR+=`<option value="${$M['POST']['fields'][i].name}">${$M['POST']['fields'][i].comment}</option>`;
                 //add页面
-                formSTR+=`<tr><td width="120"><span class="mkoa-form-title">${$M['POST']['fields'][i].comment}</span></td>
+                formSTR+=`<tr><td class="mkoa-form-title"><span>${$M['POST']['fields'][i].comment}</span></td>
                 <td><input type="text" ms-duplex="form.${$M['POST']['fields'][i].name}"/></td></tr>`;
                 vmSTR[$M['POST']['fields'][i].name]="";
                 //验证数据
