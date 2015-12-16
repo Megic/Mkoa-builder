@@ -15,14 +15,14 @@ module.exports = function($this,$M){
     };
 
     main['eModel']=function *(){
-       var data=require($M.modulePath+'data/module/'+$M.GET['file']);
+        var data=require($M.modulePath+'data/module/'+$M.GET['file']);
         data['filepath']=data['filepath']?data['filepath']:'';
         yield $this.display(data);
     };
     main['list']=function *(){//模型列表
         var dirList=[];
         if(fs.existsSync($M.modulePath+'data/module')){
-           dirList = fs.readdirSync($M.modulePath+'data/module');
+            dirList = fs.readdirSync($M.modulePath+'data/module');
         }
         yield $this.display({dirList:JSON.stringify(dirList)});
     };
@@ -38,7 +38,7 @@ module.exports = function($this,$M){
         if(r.status==1&&$M['POST']['fields'].length>0){
             var fieldsARR='{';
             var len= $M['POST']['fields'].length;
-          //生成字段
+            //生成字段
             for(var i=0; i<len; i++){
                 if(i)fieldsARR+=',';
                 var defaultSTR=`
@@ -57,18 +57,18 @@ module.exports = function($this,$M){
             var fixArr=['','mysql','pgsql'];
 
             res=res.replace('{{%prefix%}}',$M.C[fixArr[$M.C.sqlType]].prefix);
-             res=res.replace(/{{%name%}}/g,$M['POST'].modelName);
-             res=res.replace('{{%comment%}}',$M['POST'].comment);
-             res=res.replace('{{%timestamps%}}',$M['POST'].timestamps);
-             res=res.replace('{{%indexes%}}',$M['POST'].indexes?$M['POST'].indexes:'[]');
-             res=res.replace('{{%paranoid%}}',$M['POST'].paranoid);
-             res=res.replace('{{%fields%}}',fieldsARR);
+            res=res.replace(/{{%name%}}/g,$M['POST'].modelName);
+            res=res.replace('{{%comment%}}',$M['POST'].comment);
+            res=res.replace('{{%timestamps%}}',$M['POST'].timestamps);
+            res=res.replace('{{%indexes%}}',$M['POST'].indexes?$M['POST'].indexes:'[]');
+            res=res.replace('{{%paranoid%}}',$M['POST'].paranoid);
+            res=res.replace('{{%fields%}}',fieldsARR);
             var modelPath=$M.ROOT + '/' + $M.C.application + '/' + $M['POST'].root + '/models/';
             if (fs.existsSync(modelPath) || (yield fscp.mkdirp(modelPath, '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync(modelPath+$M['POST'].modelName+'.js',res);
             }
             if (fs.existsSync($M.modulePath+'data/module') || (yield fscp.mkdirp($M.modulePath+'data/module', '0755'))) {//判定文件夹是否存在
-            fs.writeFileSync($M.modulePath+'data/module/'+$M['POST'].modelName+'.js','module.exports='+JSON.stringify($M['POST'])+';');
+                fs.writeFileSync($M.modulePath+'data/module/'+$M['POST'].modelName+'.js','module.exports='+JSON.stringify($M['POST'])+';');
             }
 
             yield $M.D($M['POST'].root+':'+$M['POST'].modelName).sync({force: true});//写入数据表
@@ -133,7 +133,7 @@ module.exports = function($this,$M){
         var r=$M['F'].V.validate($M['POST'], rules);
         if(r.status==1&&$M['POST']['fields'].length>0){
             //读取菜单数据
-            var menuData={};
+            var menuData={lock:{}};
             var menupath=$M.modulePath+'data/menu.json';
             if (fs.existsSync($M.modulePath+'data') || (yield fscp.mkdirp($M.modulePath+'data', '0755'))) {//判定文件夹是否存在
                 if (fs.existsSync(menupath)) {
@@ -143,26 +143,28 @@ module.exports = function($this,$M){
             }
             if(!menuData[$M['POST'].root]){
                 menuData[$M['POST'].root]=[];
-                menuData[$M['POST'].root+'-lock']=[];
+                menuData['lock'][$M['POST'].root+'-lock']=[];
             }
-            if(menuData[$M['POST'].root+'-lock'].indexOf($M['POST'].modelName)<0){
+            if(menuData['lock'][$M['POST'].root+'-lock'].indexOf($M['POST'].modelName)<0){
                 menuData[$M['POST'].root].push(
                     {name:$M['POST'].modelName,url:"#!/?"+$M['POST'].root+"/"+pathPrefix+$M['POST'].modelName+"/list"}
                 );
-                menuData[$M['POST'].root+'-lock'].push($M['POST'].modelName);
+                menuData['lock'][$M['POST'].root+'-lock'].push($M['POST'].modelName);
             }
 
             //保存菜单数据
             fs.writeFileSync(menupath,JSON.stringify(menuData));
-           //生成index文件
+            //生成index文件
             var index=fs.readFileSync($M.modulePath+'lib/admin.tpl.html','utf-8');
-            index=index.replace('{{%menuData%}}',JSON.stringify(menuData[$M['POST'].root]));
+            delete menuData['lock'];
+            index=index.replace('{{%menuData%}}',JSON.stringify(menuData));
             var vPath=$M.ROOT + '/' + $M.C.application + '/' + $M['POST'].root + '/views/';
             if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
-                fs.writeFileSync(vPath+'admin.html',index);
+                fs.writeFileSync($M.ROOT + '/' + $M.C.application + '/builder/views/admin.html',index);
             }
-             vPath=vPath+pathPrefix;
-         //拼接页面代码
+
+            vPath=vPath+pathPrefix;
+            //拼接页面代码
             var len= $M['POST']['fields'].length;
             //生成字段
             var titleSTR='',searchSTR='',listSTR='',formSTR='',vmSTR={},fieldsARR='{';

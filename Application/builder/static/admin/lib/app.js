@@ -15,7 +15,7 @@ var app=avalon.define({
     $lib:$HOST+'js/',//公共插件库地址
     //islogin:'#',
     closeMenu:0,//左侧菜单开关
-    leftMenu:[],//左侧菜单数据
+    leftMenu:{},//左侧菜单数据
     module:[],//模块对象存放
     $cache:[]//系统缓存对象
 });
