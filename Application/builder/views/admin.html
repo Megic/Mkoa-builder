@@ -49,7 +49,7 @@
 <script>
     require(["KoaFunctions","mmRouter/mmRouter"], function (F) {
         //菜单数据
-        app.leftMenu={};
+        app.leftMenu={"setting":[{"name":"setting","url":"#!/?setting/admin/setting/list"}],"member":[{"name":"member","url":"#!/?member/admin/member/list"}],"class":[{"name":"class","url":"#!/?class/admin/class/list"}],"score":[{"name":"score","url":"#!/?score/admin/score/list"}]};
         //路由
         var router = avalon.define({
             $id: 'router',
