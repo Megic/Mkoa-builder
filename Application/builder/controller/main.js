@@ -13,7 +13,18 @@ module.exports = function($this,$M){
         //console.log('公共头部');
 
     };
-
+    main['getMenu']=function *(){//输出菜单数据
+        //读取菜单数据
+        var menuData={};
+        var menupath=$M.modulePath+'data/menu.json';
+        if (fs.existsSync($M.modulePath+'data') || (yield fscp.mkdirp($M.modulePath+'data', '0755'))) {//判定文件夹是否存在
+            if (fs.existsSync(menupath)) {
+                var menuJson = fs.readFileSync($M.modulePath + 'data/menu.json', 'utf-8');
+                menuData = JSON.parse(menuJson);
+            }
+        }
+        $this.success(menuData);
+    };
     main['eModel']=function *(){
         var data=require($M.modulePath+'data/module/'+$M.GET['file']);
         data['filepath']=data['filepath']?data['filepath']:'';
@@ -46,11 +57,11 @@ module.exports = function($this,$M){
                 if($M['POST']['fields'][i].defaultValue=='')defaultSTR='';
                 fieldsARR+=`
                 ${$M['POST']['fields'][i].name}: {
-                        type: DataTypes.${$M['POST']['fields'][i].type},
-                        allowNull:${$M['POST']['fields'][i].allowNull},${defaultSTR}
-                        unique:${$M['POST']['fields'][i].unique},
-                        comment: '${$M['POST']['fields'][i].comment}'
-                      }`;
+                    type: DataTypes.${$M['POST']['fields'][i].type},
+                    allowNull:${$M['POST']['fields'][i].allowNull},${defaultSTR}
+                    unique:${$M['POST']['fields'][i].unique},
+                    comment: '${$M['POST']['fields'][i].comment}'
+                }`;
             }
             fieldsARR+='}';
             var res=fs.readFileSync($M.modulePath+'lib/model.tpl','utf-8');
@@ -65,13 +76,16 @@ module.exports = function($this,$M){
             res=res.replace('{{%fields%}}',fieldsARR);
             var modelPath=$M.ROOT + '/' + $M.C.application + '/' + $M['POST'].root + '/models/';
             if (fs.existsSync(modelPath) || (yield fscp.mkdirp(modelPath, '0755'))) {//判定文件夹是否存在
-                fs.writeFileSync(modelPath+$M['POST'].modelName+'.js',res);
+                var fileName=modelPath+$M['POST'].modelName+'.js';
+                fs.writeFileSync(fileName,res);
+                $M.modelPath[$M['POST'].modelName]=fileName;
             }
             if (fs.existsSync($M.modulePath+'data/module') || (yield fscp.mkdirp($M.modulePath+'data/module', '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync($M.modulePath+'data/module/'+$M['POST'].modelName+'.js','module.exports='+JSON.stringify($M['POST'])+';');
             }
 
-            yield $M.D($M['POST'].root+':'+$M['POST'].modelName).sync({force: true});//写入数据表
+
+            yield $M.D($M['POST'].modelName).sync({force: true});//写入数据表
             //编辑安装锁
             var filePath=$M.ROOT+'/install.json';
             var modelData=[];
@@ -133,7 +147,7 @@ module.exports = function($this,$M){
         var r=$M['F'].V.validate($M['POST'], rules);
         if(r.status==1&&$M['POST']['fields'].length>0){
             //读取菜单数据
-            var menuData={lock:{}};
+            var menuData={};
             var menupath=$M.modulePath+'data/menu.json';
             if (fs.existsSync($M.modulePath+'data') || (yield fscp.mkdirp($M.modulePath+'data', '0755'))) {//判定文件夹是否存在
                 if (fs.existsSync(menupath)) {
@@ -143,21 +157,19 @@ module.exports = function($this,$M){
             }
             if(!menuData[$M['POST'].root]){
                 menuData[$M['POST'].root]=[];
-                menuData['lock'][$M['POST'].root+'-lock']=[];
             }
-            if(menuData['lock'][$M['POST'].root+'-lock'].indexOf($M['POST'].modelName)<0){
+            if($M._.where(menuData[$M['POST'].root], {"name":$M['POST'].modelName}).length<1){
                 menuData[$M['POST'].root].push(
                     {name:$M['POST'].modelName,url:"#!/?"+$M['POST'].root+"/"+pathPrefix+$M['POST'].modelName+"/list"}
                 );
-                menuData['lock'][$M['POST'].root+'-lock'].push($M['POST'].modelName);
             }
 
             //保存菜单数据
             fs.writeFileSync(menupath,JSON.stringify(menuData));
             //生成index文件
             var index=fs.readFileSync($M.modulePath+'lib/admin.tpl.html','utf-8');
-            delete menuData['lock'];
-            index=index.replace('{{%menuData%}}',JSON.stringify(menuData));
+
+            // index=index.replace('{{%menuData%}}',JSON.stringify(menuData));
             var vPath=$M.ROOT + '/' + $M.C.application + '/' + $M['POST'].root + '/views/';
             if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync($M.ROOT + '/' + $M.C.application + '/builder/views/admin.html',index);
@@ -172,56 +184,56 @@ module.exports = function($this,$M){
                 //list页面
                 titleSTR+=`<th>${$M['POST']['fields'][i].comment}</th>`;
                 listSTR+=`<td>{{el.${$M['POST']['fields'][i].name}}}</td>`;
-                searchSTR+=`<option value="${$M['POST']['fields'][i].name}">${$M['POST']['fields'][i].comment}</option>`;
-                //add页面
-                formSTR+=`<tr><td class="mkoa-form-title"><span>${$M['POST']['fields'][i].comment}</span></td>
-                <td><input type="text" ms-duplex="form.${$M['POST']['fields'][i].name}"/></td></tr>`;
-                vmSTR[$M['POST']['fields'][i].name]="";
-                //验证数据
-                if(i)fieldsARR+=',';
-                fieldsARR+=`
-                ${$M['POST']['fields'][i].name}: {rule:'${$M['POST']['fields'][i].validate.rule}',error:'${$M['POST']['fields'][i].validate.error}'}`;
+            searchSTR+=`<option value="${$M['POST']['fields'][i].name}">${$M['POST']['fields'][i].comment}</option>`;
+            //add页面
+            formSTR+=`<tr><td class="mkoa-form-title"><span>${$M['POST']['fields'][i].comment}</span></td>
+            <td><input type="text" ms-duplex="form.${$M['POST']['fields'][i].name}"/></td></tr>`;
+            vmSTR[$M['POST']['fields'][i].name]="";
+            //验证数据
+            if(i)fieldsARR+=',';
+            fieldsARR+=`
+            ${$M['POST']['fields'][i].name}: {rule:'${$M['POST']['fields'][i].validate.rule}',error:'${$M['POST']['fields'][i].validate.error}'}`;
 
-            }
-            if($M['POST']['timestamps']){
-                titleSTR+=`<th width="155">创建时间</th>`;
-                listSTR+=`<td>{{el.createdAt|date("yyyy-MM-dd HH:mm:ss")}}</td>`;
-            }
-            fieldsARR+='}';
-
-            //生成list文件
-            var controllerPath=$M['POST'].root+'/'+pathPrefix+$M['POST'].modelName+'/';
-            var list=fs.readFileSync($M.modulePath+'lib/list.tpl.html','utf-8');//读取模板
-            list=list.replace('{{%searchSTR%}}',searchSTR);
-            list=list.replace('{{%titleSTR%}}',titleSTR);
-            list=list.replace('{{%listSTR%}}',listSTR);
-            list=list.replace(/{{%name%}}/g,$M['POST'].modelName);
-            list=list.replace(/{{%mroot%}}/g,$M['POST'].root);
-            list=list.replace(/{{%controllerPath%}}/g,controllerPath);
-            vPath=vPath+$M['POST'].modelName+'/';
-            if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
-                fs.writeFileSync(vPath+'list.html',list);
-            }
-            //生成addItem文件
-
-            var addItem=fs.readFileSync($M.modulePath+'lib/addItem.tpl.html','utf-8');//读取模板
-            addItem=addItem.replace('{{%rules%}}',fieldsARR);
-            addItem=addItem.replace('{{%formSTR%}}',formSTR);
-            addItem=addItem.replace('{{%vmSTR%}}',JSON.stringify(vmSTR));
-            addItem=addItem.replace(/{{%name%}}/g,$M['POST'].modelName);
-            addItem=addItem.replace(/{{%mroot%}}/g,$M['POST'].root);
-            addItem=addItem.replace(/{{%controllerPath%}}/g,controllerPath);
-            fs.writeFileSync(vPath+'addItem.html',addItem);
-
-
-            $this.success('成功生成视图!');
-
-        }else{
-            $this.error('数据有误');
         }
+        if($M['POST']['timestamps']){
+            titleSTR+=`<th width="155">创建时间</th>`;
+            listSTR+=`<td>{{el.createdAt|date("yyyy-MM-dd HH:mm:ss")}}</td>`;
+    }
+    fieldsARR+='}';
 
-    };
+    //生成list文件
+    var controllerPath=$M['POST'].root+'/'+pathPrefix+$M['POST'].modelName+'/';
+    var list=fs.readFileSync($M.modulePath+'lib/list.tpl.html','utf-8');//读取模板
+    list=list.replace('{{%searchSTR%}}',searchSTR);
+    list=list.replace('{{%titleSTR%}}',titleSTR);
+    list=list.replace('{{%listSTR%}}',listSTR);
+    list=list.replace(/{{%name%}}/g,$M['POST'].modelName);
+    list=list.replace(/{{%mroot%}}/g,$M['POST'].root);
+    list=list.replace(/{{%controllerPath%}}/g,controllerPath);
+    vPath=vPath+$M['POST'].modelName+'/';
+    if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
+        fs.writeFileSync(vPath+'list.html',list);
+    }
+    //生成addItem文件
+
+    var addItem=fs.readFileSync($M.modulePath+'lib/addItem.tpl.html','utf-8');//读取模板
+    addItem=addItem.replace('{{%rules%}}',fieldsARR);
+    addItem=addItem.replace('{{%formSTR%}}',formSTR);
+    addItem=addItem.replace('{{%vmSTR%}}',JSON.stringify(vmSTR));
+    addItem=addItem.replace(/{{%name%}}/g,$M['POST'].modelName);
+    addItem=addItem.replace(/{{%mroot%}}/g,$M['POST'].root);
+    addItem=addItem.replace(/{{%controllerPath%}}/g,controllerPath);
+    fs.writeFileSync(vPath+'addItem.html',addItem);
 
 
-    return main;
+    $this.success('成功生成视图!');
+
+}else{
+    $this.error('数据有误');
+}
+
+};
+
+
+return main;
 };
