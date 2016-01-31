@@ -1,5 +1,5 @@
 /** Created by mkoa */
-module.exports = function ($this, $M) {
+module.exports = function ($this) {
     var main = {};
 
     main['_init'] = function *() {/*先执行的公共函数 （不会被缓存部分） */
@@ -13,16 +13,16 @@ module.exports = function ($this, $M) {
         /*验证规则*/
         var rules = {{%rules%}};
 
-        var check = $M['F'].V.validate($M.POST, rules);//验证数据
+        var check = $F.V.validate($this.POST, rules);//验证数据
 
         if (check.status) {/*通过验证*/
-            var where = {id: $M.POST['id'] ? parseInt($M.POST['id']) : 0};
+            var where = {id: $this.POST['id'] ? parseInt($this.POST['id']) : 0};
             var res,resData;
             if (where.id) {/*存在数据ID更新改数据*/
-                res = yield $M.D('{{%name%}}').update($M.POST, {where: where});
-                resData = $M.POST;
+                res = yield $D('{{%name%}}').update($this.POST, {where: where});
+                resData = $this.POST;
             } else {/*新增*/
-                res = yield $M.D('{{%name%}}').build($M.POST).save();
+                res = yield $D('{{%name%}}').build($this.POST).save();
                 resData = res;
             }
             $this.success(resData);
@@ -35,19 +35,19 @@ module.exports = function ($this, $M) {
     //返回数据
     main['findOne'] = function *() {
         var where = {
-            id: parseInt($M.GET['id'])
+            id: parseInt($this.GET['id'])
         };
-        var res = yield $M.D('{{%name%}}').findOne({where: where}, {raw: true});
+        var res = yield $D('{{%name%}}').findOne({where: where}, {raw: true});
         $this.success(res);
     };
 
 
     //返回分页数据
     main['findAll'] = function *() {
-        var perPages=$M.GET['perPages']?parseInt($M.GET['perPages']):10;//每页数据数
-        var currentPage=$M.GET['currentPage']?parseInt($M.GET['currentPage']):1;//查询页码
+        var perPages=$this.GET['perPages']?parseInt($this.GET['perPages']):10;//每页数据数
+        var currentPage=$this.GET['currentPage']?parseInt($this.GET['currentPage']):1;//查询页码
         var where = {};
-        var res = yield $M.D('{{%name%}}').findAndCountAll({
+        var res = yield $D('{{%name%}}').findAndCountAll({
         where: where,
         limit: perPages,
         offset: perPages * (currentPage - 1)
@@ -56,17 +56,17 @@ module.exports = function ($this, $M) {
     };
     //返回搜索数据
     main['search'] = function *() {
-    var perPages=$M.GET['perPages']?parseInt($M.GET['perPages']):10;//每页数据数
-    var currentPage=$M.GET['currentPage']?parseInt($M.GET['currentPage']):1;//查询页码
+    var perPages=$this.GET['perPages']?parseInt($this.GET['perPages']):10;//每页数据数
+    var currentPage=$this.GET['currentPage']?parseInt($this.GET['currentPage']):1;//查询页码
     var where = {};
-    if(!isNaN($M.GET['searchValue'])){
-    where[$M.GET['searchKey']]=$M.GET['searchValue'];
+    if(!isNaN($this.GET['searchValue'])){
+    where[$this.GET['searchKey']]=$this.GET['searchValue'];
     }else{
-    where[$M.GET['searchKey']]={
-    $like:'%'+$M.GET['searchValue']+'%'
+    where[$this.GET['searchKey']]={
+    $like:'%'+$this.GET['searchValue']+'%'
     };
     }
-    var res = yield $M.D('{{%name%}}').findAndCountAll({
+    var res = yield $D('{{%name%}}').findAndCountAll({
     where: where,
     limit: perPages,
     offset: perPages * (currentPage - 1)
@@ -77,9 +77,9 @@ module.exports = function ($this, $M) {
     //删除数据
     main['delete'] = function *() {
         var where = {
-            id: parseInt($M.GET['id'])
+            id: parseInt($this.GET['id'])
         };
-        if (where.id)yield $M.D('{{%name%}}').destroy({where: where});
+        if (where.id)yield $D('{{%name%}}').destroy({where: where});
         $this.success();
     };
 
