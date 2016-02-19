@@ -47,9 +47,13 @@
     <div ms-include-src="curTpl" class="f-p15" ></div>
 </div>
 <script>
-    require(["KoaFunctions","mmRouter/mmRouter"], function (F) {
+    require(["KoaFunctions","mkoaAjax/mkoaAjax","mmRouter/mmRouter"], function (F,$a) {
         //菜单数据
-        app.leftMenu={"setting":[{"name":"setting","url":"#!/?setting/admin/setting/list"}],"member":[{"name":"member","url":"#!/?member/admin/member/list"}],"class":[{"name":"class","url":"#!/?class/admin/class/list"}],"score":[{"name":"score","url":"#!/?score/admin/score/list"}]};
+        $a.getJSON(app.$host +'builder/main/getMenu',{t:new Date().getTime()},function(data){//获取列表数据
+            if(!data.error){
+                app.leftMenu=data.data;
+            }
+        });
         //路由
         var router = avalon.define({
             $id: 'router',
