@@ -13,18 +13,42 @@ module.exports = function($this){
         //console.log('公共头部');
 
     };
-    main['getMenu']=function *(){//输出菜单数据
+    main['getMenu']=function *(){//查找模块目录
         //读取菜单数据
-        var menuData={};
-        var menupath=$this.modulePath+'data/menu.json';
-        if (fs.existsSync($this.modulePath+'data') || (yield fscp.mkdirp($this.modulePath+'data', '0755'))) {//判定文件夹是否存在
-            if (fs.existsSync(menupath)) {
-                var menuJson = fs.readFileSync($this.modulePath + 'data/menu.json', 'utf-8');
-                menuData = JSON.parse(menuJson);
-            }
+        var libArr={};
+        var apppath=$C.ROOT+ '/' +$C.application;
+        function walk(apppath,appname){
+            var dirList = fs.readdirSync(apppath);
+            dirList.forEach(function(item){
+                if(fs.statSync(apppath + '/' + item).isDirectory()){
+                    walk(apppath + '/' + item);
+                    libArr[appname].push({"name":item,"url":"#!/?"+appname+"/admin/"+item+"/list"});
+                }});
         }
-        $this.success(menuData);
+        var moudelList = fs.readdirSync(apppath);
+        moudelList.forEach(function(item){
+            if(fs.statSync(apppath + '/' + item).isDirectory()){
+                var mdPath=apppath + '/' + item+ '/views/admin/' ;//存在管理文件夹
+                if(fs.existsSync(mdPath)){
+                    libArr[item]=[];
+                    walk(mdPath,item);
+                }
+            }});
+
+        $this.success(libArr);
     };
+    //main['getMenu']=function *(){//输出菜单数据
+    //    //读取菜单数据
+    //    var menuData={};
+    //    var menupath=$this.modulePath+'data/menu.json';
+    //    if (fs.existsSync($this.modulePath+'data') || (yield fscp.mkdirp($this.modulePath+'data', '0755'))) {//判定文件夹是否存在
+    //        if (fs.existsSync(menupath)) {
+    //            var menuJson = fs.readFileSync($this.modulePath + 'data/menu.json', 'utf-8');
+    //            menuData = JSON.parse(menuJson);
+    //        }
+    //    }
+    //    $this.success(menuData);
+    //};
     main['eModel']=function *(){
         var data=require($this.modulePath+'data/module/'+$this.GET['file']);
         data['filepath']=data['filepath']?data['filepath']:'';
