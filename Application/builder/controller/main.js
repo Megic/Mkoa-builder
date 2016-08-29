@@ -91,7 +91,7 @@ module.exports = function($this){
             var res=fs.readFileSync($this.modulePath+'lib/model.tpl','utf-8');
             var fixArr=['','mysql','pgsql'];
 
-            res=res.replace('{{%prefix%}}',$C[fixArr[$C.sqlType]].prefix);
+            // res=res.replace('{{%prefix%}}',$C[fixArr[$C.sqlType]].prefix);
             res=res.replace(/{{%name%}}/g,$this['POST'].modelName);
             res=res.replace('{{%comment%}}',$this['POST'].comment);
             res=res.replace('{{%timestamps%}}',$this['POST'].timestamps);
@@ -193,7 +193,7 @@ module.exports = function($this){
             //生成index文件
             var index=fs.readFileSync($this.modulePath+'lib/admin.tpl.html','utf-8');
 
-           // index=index.replace('{{%menuData%}}',JSON.stringify(menuData));
+            // index=index.replace('{{%menuData%}}',JSON.stringify(menuData));
             var vPath=$C.ROOT + '/' + $C.application + '/' + $this['POST'].root + '/views/';
             if (fs.existsSync(vPath) || (yield fscp.mkdirp(vPath, '0755'))) {//判定文件夹是否存在
                 fs.writeFileSync($C.ROOT + '/' + $C.application + '/builder/views/admin.html',index);
