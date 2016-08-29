@@ -3,7 +3,7 @@
 */
 module.exports = function(sequelize, DataTypes) {
     return sequelize.define('{{%name%}}',{{%fields%}}, {
-        tableName:'{{%prefix%}}{{%name%}}',
+        tableName:$C.prefix+'{{%name%}}',
         comment: '{{%comment%}}',
         timestamps:{{%timestamps%}},
         indexes:{{%indexes%}},
